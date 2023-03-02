@@ -1,17 +1,20 @@
 <div class="base">
-  <canvas id="c" height="300px"></canvas>
+  <div
+    [ngStyle]="{
+      transform: 'rotate(' + angle + 'deg)'
+    }"
+  >
+    <canvas id="c" height="300px"></canvas>
+  </div>
 
   <div class="controls">
     <p>
       <label
         ><span>Angle:</span>
         <input
-          type="range"
+          type="number"
           id="angle-control"
           value="0"
-          min="0"
-          max="360"
-          (input)="angleChange($any($event.target).value)"
           [(ngModel)]="angle"
         />{{ angle }}</label
       >

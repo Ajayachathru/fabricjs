@@ -17,14 +17,14 @@ export class AppComponent implements OnInit {
   skewX: number = 0;
   skewY: number = 0;
 
-  findQuadrantByAngle = (angle) => {
+  findQuadrantByAngle = (angle): number => {
     const n = angle % 360;
 
-    let q = 1;
+    let q = 0;
     if (n !== 0) {
-      q = Math.ceil(n / 90) + 1;
+      q = Math.ceil(n / 90);
     }
-    console.log('Q', q);
+    return q;
   };
 
   angleChange(value) {
@@ -60,8 +60,54 @@ export class AppComponent implements OnInit {
     this.__canvas.requestRenderAll();
   }
 
+  isDragging: boolean = false;
+  lastPosX: number = 0;
+  lastPosY: number = 0;
+
   ngOnInit() {
     const canvas = (this.__canvas = new fabric.Canvas('c'));
+
+    this.__canvas.on('mouse:down', (o: any) => {
+      if (o.e.altKey === true || o.button === 2 || o.button === 3) {
+        this.isDragging = true;
+        this.lastPosX = o.e.clientX;
+        this.lastPosY = o.e.clientY;
+        this.__canvas.selection = false;
+      }
+    });
+
+    // this.__canvas.on('mouse:out', (o: any) => {
+    //   this.lastPosX = 0;
+    //   this.lastPosY = 0;
+    // });
+
+    this.__canvas.on('mouse:move', (o: any) => {
+      if (this.isDragging) {
+        const e = o.e;
+        const vpt: any = this.__canvas.viewportTransform;
+        const q = this.findQuadrantByAngle(this.angle);
+
+        if (q === 0) {
+          vpt[4] += e.clientX - this.lastPosX;
+          vpt[5] += e.clientY - this.lastPosY;
+        } else if (q === 1) {
+          vpt[4] += e.clientY - this.lastPosY;
+          vpt[5] -= e.clientX - this.lastPosX;
+        } else if (q === 2) {
+          vpt[4] -= e.clientX - this.lastPosX;
+          vpt[5] -= e.clientY - this.lastPosY;
+        } else if (q === 3) {
+          vpt[4] -= e.clientY - this.lastPosY;
+          vpt[5] += e.clientX - this.lastPosX;
+        }
+
+        this.lastPosX = e.clientX;
+        this.lastPosY = e.clientY;
+        this.__canvas.setViewportTransform(
+          this.__canvas.viewportTransform as any
+        );
+      }
+    });
 
     fabric.Object.prototype.transparentCorners = false;
 
@@ -83,6 +129,10 @@ export class AppComponent implements OnInit {
       fill: 'rgba(255,0,0,0.5)',
     });
 
+    const text = new fabric.Text('hi');
+
+    canvas.add(text);
+    2;
     canvas.add(this.rect);
     //canvas.add(this.rect1);
 
