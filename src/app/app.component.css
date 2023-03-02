@@ -1,0 +1,11 @@
+p {
+  font-family: Lato;
+}
+
+.base {
+  display: flex;
+}
+
+canvas {
+  border: 1px solid red;
+}
